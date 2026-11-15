@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="Session03.Arrays/Session03.Arrays.csproj" />
+  <Project Path="Session03.CommonMistakes/Session03.CommonMistakes.csproj" />
+  <Project Path="Session03.Conditions/Session03.Conditions.csproj" />
+  <Project Path="Session03.Conversion/Session03.Conversion.csproj" />
+  <Project Path="Session03.Loops/Session03.Loops.csproj" />
+  <Project Path="Session03.Variables/Session03.Variables.csproj" />
+</Solution>
