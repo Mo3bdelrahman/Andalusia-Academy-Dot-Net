@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Session04.CommonMistakes/Session04.CommonMistakes.csproj" />
+  <Project Path="Session04.ExceptionHandling/Session04.ExceptionHandling.csproj" />
+  <Project Path="Session04.Methods/Session04.Methods.csproj" />
+  <Project Path="Session04.Nulls/Session04.Nulls.csproj" />
+  <Project Path="Session04.Strings/Session04.Strings.csproj" />
+</Solution>

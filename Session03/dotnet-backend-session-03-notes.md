@@ -976,7 +976,7 @@ int[] values = new int[5];
 
 ## 12. Before Next Session
 
-**Next: Session 04, C# Methods, Strings & Exception Handling**
+**Next: [Session 04, C# Methods, Strings & Exception Handling](../Session04/dotnet-backend-session-04-notes.md)**
 
 - Defining and calling methods with different kinds of parameters.
 - Method overloading, optional and named parameters.
