@@ -150,6 +150,52 @@ flowchart LR
 - A method with a return type **must** return a value on every path (`return` ends the method right away).
 - Each call gets its own **stack frame** for its parameters and locals ([Session 03 §3.3](../Session03/dotnet-backend-session-03-notes.md#33-stack-vs-heap)).
 
+#### Method terms
+
+```csharp
+public static int Add(int a, int b)   // ← method header (declaration line)
+{                                     // ┐
+    return a + b;                     // ├ method body
+}                                     // ┘
+
+int result = Add(3, 4);               // ← method call: 3 and 4 are the arguments
+```
+
+```mermaid
+flowchart LR
+    subgraph HEAD["Method header"]
+        direction LR
+        MOD["public static<br/>modifiers"] --> RT["int<br/>return type"] --> NAME["Add<br/>name"] --> PAR["(int a, int b)<br/>parameters"]
+    end
+    HEAD --> BODY["{ return a + b; }<br/>body"]
+```
+
+| Term | Meaning | In the example |
+|---|---|---|
+| **Method definition** (or **declaration**) | The whole method: header + body. In C# a method is declared and defined in one place. There are no separate header files like in C/C++. | All four lines of `Add` |
+| **Method header** | The first line: modifiers, return type, name, parameter list | `public static int Add(int a, int b)` |
+| **Method body** | The code that runs, in `{ }` or after `=>` | `{ return a + b; }` |
+| **Method signature** | What makes a method unique: its **name** plus the **number, types and order of its parameters** (and `ref`/`out`). **Not** the return type, and **not** the parameter names. | `Add(int, int)` |
+| **Modifiers** | Words that change how the method can be used: access (`public`, `private`) and `static` | `public static` |
+| **Return type** | The type of the value sent back; `void` means nothing comes back | `int` |
+| **Parameters** | The variables listed in the definition (also called *formal parameters*) | `a`, `b` |
+| **Arguments** | The actual values passed in the call (also called *actual parameters*) | `3`, `4` |
+| **Call / invoke** | Running the method by its name | `Add(3, 4)` |
+| **Caller / callee** | The code that makes the call / the method being called | top-level code / `Add` |
+| **Return value** | What `return` sends back to the caller | `7` |
+| **Method vs function** | In C#, every method belongs to a type (class, struct...). A method written inside another method, or in top-level code, is a **local function**. | `Calculator.Add` is a method; `Square` in `Program.cs` is a local function |
+
+> **Why the signature matters:** overloads must have **different signatures** ([§3.3](#33-overloading)). Since the return type isn't part of the signature, two methods that differ only in return type clash:
+>
+> ```csharp
+> static class Parser
+> {
+>     public static int    Parse(string s) => 0;
+>     public static double Parse(string s) => 0;   // ❌ same signature: Parse(string)
+> }
+> // error CS0111: Type 'Parser' already defines a member called 'Parse' with the same parameter types
+> ```
+
 > **In top-level programs** (`Program.cs` without `class Program`), methods written next to your code are **local functions**. Put them **after** the code that uses them, as the demos do. Classes (like `Calculator` below) must come after all top-level code.
 
 ### 3.2 Expression-bodied methods
