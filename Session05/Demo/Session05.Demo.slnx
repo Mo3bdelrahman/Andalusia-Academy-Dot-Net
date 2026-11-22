@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="Session05.ClassesObjects/Session05.ClassesObjects.csproj" />
+  <Project Path="Session05.CommonMistakes/Session05.CommonMistakes.csproj" />
+  <Project Path="Session05.Constructors/Session05.Constructors.csproj" />
+  <Project Path="Session05.Inheritance/Session05.Inheritance.csproj" />
+  <Project Path="Session05.Polymorphism/Session05.Polymorphism.csproj" />
+  <Project Path="Session05.Properties/Session05.Properties.csproj" />
+  <Project Path="Session05.StaticMembers/Session05.StaticMembers.csproj" />
+</Solution>

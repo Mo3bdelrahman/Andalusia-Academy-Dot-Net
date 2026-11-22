@@ -904,7 +904,7 @@ static double? SafeCalculate(string expression)
 
 ## 11. Before Next Session
 
-**Next: Session 05, OOP I: Classes, Encapsulation & Inheritance**
+**Next: [Session 05, OOP I: Classes, Encapsulation & Inheritance](../Session05/dotnet-backend-session-05-notes.md)**
 
 - Defining classes with fields, properties, and constructors.
 - Access modifiers and encapsulation.
