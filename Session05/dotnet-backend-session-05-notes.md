@@ -41,6 +41,16 @@ By the end of the session you should be able to:
 - Build class hierarchies with **inheritance**.
 - **Override** methods in derived classes correctly.
 
+**Where this fits:** object-oriented programming (OOP) rests on four ideas. This session covers the first three; Session 06 finishes polymorphism and adds abstraction.
+
+```mermaid
+flowchart LR
+    OOP["Object-oriented<br/>programming"] --> E["Encapsulation<br/>hide the data<br/>§5"]
+    OOP --> I["Inheritance<br/>reuse a class<br/>§7"]
+    OOP --> P["Polymorphism<br/>one call, many forms<br/>§8 + Session 06"]
+    OOP --> A["Abstraction<br/>show only what matters<br/>Session 06"]
+```
+
 | Time | Topic | Type | Duration |
 |---|---|---|---|
 | 0:00 | Classes & objects | Theory + Demo | 25 min |
@@ -133,10 +143,21 @@ None of this session's programs read keyboard input, so they all run with F5 in 
 
 A **class** is a **blueprint**: it describes what data something has and what it can do. An **object** (also called an **instance**) is one thing built from that blueprint, with **its own copy of the data**.
 
+Think of a house **blueprint**: it isn't a house, but you can build many houses from it, and each one gets its own furniture and door colour.
+
 ```mermaid
 flowchart LR
-    CLS["class Car<br/>Brand, Year<br/>StartEngine()"] -->|"new"| O1["car1<br/>Toyota, 2022"]
-    CLS -->|"new"| O2["car2<br/>BMW, 2024"]
+    subgraph REAL["Real world"]
+        direction TB
+        BP["House blueprint<br/>rooms, door"] -->|"build"| H1["House 1<br/>blue door"]
+        BP -->|"build"| H2["House 2<br/>red door"]
+    end
+    subgraph CODE["C#"]
+        direction TB
+        CLS["class Car<br/>Brand, Year<br/>StartEngine()"] -->|"new"| O1["car1<br/>Toyota, 2022"]
+        CLS -->|"new"| O2["car2<br/>BMW, 2024"]
+    end
+    REAL ~~~ CODE
 ```
 
 You've used classes since Session 03 without writing them: `string`, `StringBuilder` and `Random` are all classes.
@@ -154,6 +175,15 @@ public class Car
         Console.WriteLine($"{Brand} engine started.");
     }
 }
+```
+
+A class puts **data** and the **behaviour** that works on that data in one place:
+
+```mermaid
+flowchart LR
+    CAR["class Car"] -->|"has data"| F["fields<br/>Brand, Year"]
+    CAR -->|"can do"| M["methods<br/>StartEngine()"]
+    M -->|"uses"| F
 ```
 
 | Term | Meaning | In the example |
@@ -259,6 +289,19 @@ A variable that refers to **no object** is `null`, and calling a method on it th
 
 A **constructor** is a special method that runs **automatically when an object is created**. Its job: make sure the object **starts in a valid state**.
 
+```mermaid
+flowchart LR
+    subgraph NO["No constructor"]
+        direction TB
+        N1["new Person()"] --> N2["Name = null<br/>Age = 0 ⚠️"]
+    end
+    subgraph YES["With a constructor"]
+        direction TB
+        Y1["new Person(#quot;Alice#quot;, 30)"] --> Y2["Name = Alice<br/>Age = 30 ✅"]
+    end
+    NO ~~~ YES
+```
+
 ```csharp
 public class Person
 {
@@ -349,6 +392,23 @@ public class Point
 }
 ```
 
+The parameter `x` lives in the constructor's stack frame; the field `this.x` lives in the object on the heap ([Session 03 §3.3](../Session03/dotnet-backend-session-03-notes.md#33-stack-vs-heap)). `this.x = x` copies one into the other:
+
+```mermaid
+flowchart LR
+    subgraph FRAME["Constructor frame: stack"]
+        direction TB
+        PX["parameter x = 3"]
+    end
+    subgraph OBJ["Point object: heap"]
+        direction TB
+        FX["field this.x = 3"]
+    end
+    PX -->|"this.x = x"| FX
+```
+
+Without `this.`, `x = x;` would assign the parameter to **itself** and leave the field at `0` (the compiler warns: `warning CS1717: Assignment made to same variable; did you mean to assign something else?`).
+
 > Many teams name private fields with an underscore (`_count`, `_price`) so there's never a clash and `this.` isn't needed.
 
 **2. Returning the object itself to allow method chaining:**
@@ -372,6 +432,13 @@ var c = new Counter();
 c.Increment();
 c.Increment();           // Count = 2
 c.Reset().Increment();   // Count = 1
+```
+
+```mermaid
+flowchart LR
+    C["c<br/>Count = 2"] --> R["c.Reset()<br/>Count = 0"]
+    R -->|"returns this"| I["same c<br/>.Increment()"]
+    I --> D["Count = 1"]
 ```
 
 `StringBuilder.Append()` works the same way: it returns the builder, so you can write `sb.Append("a").Append("b")` ([Session 04 §4.4](../Session04/dotnet-backend-session-04-notes.md#44-stringbuilder)).
@@ -402,11 +469,23 @@ You'll see this style a lot in ASP.NET Core code (services that receive their de
 
 **Encapsulation** means **hiding an object's data** and letting other code change it only through members you control. That way the object can **protect its own rules** (a price can't be negative, a balance can't be set directly).
 
+Think of an **ATM**: you use the screen and buttons, and the machine checks the rules (PIN, balance). You can't reach into the cash box. A class works the same way:
+
 ```mermaid
 flowchart LR
-    OUT["Other code"] -->|"allowed"| PUB["public properties<br/>and methods"]
-    PUB --> PRIV["private fields<br/>_price, _balance"]
-    OUT -.->|"blocked"| PRIV
+    subgraph REAL["Real world: ATM"]
+        direction TB
+        U["Customer"] -->|"uses"| SCR["screen & buttons"]
+        SCR -->|"checks rules"| CASH["cash box"]
+        U -.->|"can't reach"| CASH
+    end
+    subgraph CODE["C#: a class"]
+        direction TB
+        OUT["Other code"] -->|"calls"| PUB["public properties<br/>and methods"]
+        PUB -->|"validates"| PRIV["private fields<br/>_price, _balance"]
+        OUT -.->|"blocked"| PRIV
+    end
+    REAL ~~~ CODE
 ```
 
 > *"Hide the data; expose the behaviour. The public surface of a class is a promise — once broken, everything that depends on it breaks too."* — Session 05 deck
@@ -421,6 +500,41 @@ flowchart LR
 | `internal` | Anywhere in the same **project** (assembly) |
 | `protected internal` | The same project, **or** derived classes anywhere |
 | 🆕 `private protected` | Derived classes **in the same project** only (C# 7.2) |
+
+**Who can see a member?** Read across a row: ✅ means code in that place can use the member.
+
+| Modifier | Same class | Derived class, same project | Other class, same project | Derived class, other project | Other class, other project |
+|---|:---:|:---:|:---:|:---:|:---:|
+| `public` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `protected internal` | ✅ | ✅ | ✅ | ✅ | ❌ |
+| `protected` | ✅ | ✅ | ❌ | ✅ | ❌ |
+| `internal` | ✅ | ✅ | ✅ | ❌ | ❌ |
+| `private protected` | ✅ | ✅ | ❌ | ❌ | ❌ |
+| `private` | ✅ | ❌ | ❌ | ❌ | ❌ |
+
+> `protected internal` = protected **OR** internal (wider). `private protected` = protected **AND** internal (narrower).
+
+The same idea as a picture, for the `Vault` class in the demo:
+
+```mermaid
+flowchart LR
+    subgraph PROJ["Same project"]
+        direction TB
+        IN["Vault itself"]
+        SV["SmallVault : Vault"]
+        PR["Program"]
+    end
+    subgraph OTH["Another project"]
+        direction TB
+        CH["Child : Vault"]
+        AN["Any other class"]
+    end
+    IN -->|"everything"| M["Vault's<br/>members"]
+    SV -->|"public internal protected"| M
+    PR -->|"public internal"| M
+    CH -->|"public protected"| M
+    AN -->|"public only"| M
+```
 
 **Defaults, when you write nothing:** class **members** are `private`; a **class** itself is `internal`.
 
@@ -448,6 +562,22 @@ public class Product
         Stock += units;
     }
 }
+```
+
+What `{ get; set; }` really is: the compiler writes a hidden field and two small methods for you.
+
+```mermaid
+flowchart LR
+    subgraph YOU["What you write"]
+        direction TB
+        Y1["public string Name<br/>{ get; set; }"]
+    end
+    subgraph COMP["What the compiler makes"]
+        direction TB
+        G["get: return the field"] --> HF["hidden private field"]
+        S["set: field = value"] --> HF
+    end
+    YOU -->|"compiles to"| COMP
 ```
 
 ```csharp
@@ -643,6 +773,14 @@ var u2 = new User("Bob");
 Console.WriteLine(User.TotalCreated);   // 2
 ```
 
+The static field exists **before any object** and keeps counting as objects are created:
+
+```mermaid
+flowchart LR
+    S0["program starts<br/>TotalCreated = 0"] -->|"new User(Alice)"| S1["TotalCreated = 1"]
+    S1 -->|"new User(Bob)"| S2["TotalCreated = 2"]
+```
+
 Static members are used through the **class**, not an object: `u1.TotalCreated` → `error CS0176: Member 'User.TotalCreated' cannot be accessed with an instance reference; qualify it with a type name instead`.
 
 ### 6.4 Static or instance?
@@ -682,6 +820,16 @@ flowchart TD
 | **Inherit** | Get the base class's members automatically | `Dog` gets `Name` and `Breathe()` |
 | **IS-A** | The test for inheritance: "a Dog is an Animal" | ✅ Dog : Animal, ❌ Car : Engine |
 | **Hierarchy** | The tree of classes | `object` → `Animal` → `Dog` |
+
+**IS-A or HAS-A?** Use inheritance only when the IS-A sentence is true. When one thing **has** another, give it a **property** of that type instead (this is called **composition**):
+
+```mermaid
+flowchart TD
+    Q{"Is B a kind of A?"} -->|"Yes: IS-A"| INH["Inheritance<br/>class Dog : Animal"]
+    Q -->|"No: HAS-A"| COMP["A property<br/>class Car { Engine Engine }"]
+```
+
+> A `Car` is not an `Engine`, so `class Car : Engine` is wrong even though it would compile. A car **has** an engine.
 
 ```csharp
 public class Animal
@@ -731,6 +879,20 @@ flowchart LR
     B --> D["② Dog body<br/>sets Breed"]
     D --> R["d is ready"]
 ```
+
+Why the parent goes first: a `Dog` object is built in **layers**. The `Animal` part is the foundation the `Dog` part sits on, just as a house's ground floor is built before the first floor:
+
+```mermaid
+flowchart LR
+    D["Dog d = ref"] --> OBJ
+    subgraph OBJ["Dog object: heap"]
+        direction TB
+        L1["object part<br/>GetType(), ToString()"] --> L2["Animal part<br/>Name"]
+        L2 --> L3["Dog part<br/>Breed"]
+    end
+```
+
+It's **one** object, not three: `Name` and `Breed` sit side by side in the same object.
 
 If the base class has **no parameterless constructor**, every derived constructor **must** call `base(...)`:
 
@@ -825,6 +987,22 @@ flowchart LR
     Q -->|"Shape"| S["Shape.Area()<br/>0.00"]
 ```
 
+Every variable that holds an object has **two types**:
+
+| | Declared type (compile time) | Actual type (run time) |
+|---|---|---|
+| What it is | The type written on the **left**: `Shape s` | The type of the object it points to: `new Circle(5)` |
+| Decided by | The compiler, before the program runs | The program while it runs |
+| Controls | **Which members you may call** (`s.Radius` doesn't compile) | **Which `override` runs** for a `virtual` method |
+
+```mermaid
+flowchart LR
+    CODE["Shape s = new Circle(5)<br/>s.Area()"] --> CT{"Compile time:<br/>does Shape have Area()?"}
+    CT -->|"No"| ERR["compile error<br/>CS1061"]
+    CT -->|"Yes"| RT{"Run time:<br/>what is the object?"}
+    RT -->|"a Circle"| RUN["Circle.Area() runs"]
+```
+
 This is **runtime polymorphism**: the decision is made **while the program runs**, by looking at the object. The loop doesn't need an `if` for every shape type, and adding a new shape doesn't change the loop.
 
 ### 8.3 Calling the base version
@@ -846,6 +1024,16 @@ public sealed class Square : Rectangle
 }
 
 new Square(3).Describe();   // "Square with area 9.00 (all sides equal)"
+```
+
+**Which version runs?** The runtime starts at the object's **own** class and walks **up** the hierarchy until it finds an override. `Square` doesn't override `Area()`, so `Rectangle`'s version runs:
+
+```mermaid
+flowchart LR
+    CALL["new Square(3).Area()"] --> SQ{"Square<br/>overrides Area?"}
+    SQ -->|"No"| RE{"Rectangle<br/>overrides Area?"}
+    RE -->|"Yes"| RUN["Rectangle.Area()<br/>runs: 9 ✅"]
+    SQ -.->|"if Yes"| SQR["Square.Area()"]
 ```
 
 ### 8.4 `override` vs hiding with `new`
@@ -1154,6 +1342,7 @@ public class SavingsAccount : BankAccount
 | Topic | Link |
 |---|---|
 | Access modifiers | <https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/access-modifiers> |
+| Accessibility levels (who can see what) | <https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/accessibility-levels> |
 | Properties | <https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/properties> |
 | `init` accessor | <https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/init> |
 | `field` keyword (C# 14) | <https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/field> |
